@@ -4,11 +4,12 @@ import weakref
 import contextlib
 
 class Variable:
-    def __init__(self, data):
+    def __init__(self, data, name = None):
         if data is not None:
             if not isinstance(data, np.ndarray):
                 raise TypeError('{}is not supported', format(type(data)))
         self.data = data
+        self.name = name
         self.grad = None
         self.creator = None
         self.generation = 0
@@ -55,7 +56,32 @@ class Variable:
 
     def cleargrad(self):
         self.grad = None
-                
+
+    @property
+    def shape(self):
+        return self.data.shape
+
+    @property
+    def ndim(self):
+        return self.data.ndim
+    
+    @property
+    def size(self):
+        return self.data.size
+    
+    @property
+    def dtype(self):
+        return self.data.dtype
+    
+    def __len__(self):
+        return len(self.data)
+    
+    def __repr__(self):
+        if self.data is None:
+            return 'variable(None)'
+        p = str(self.data).replace('\n', '\n' + ' ' * 9)
+        return 'variable(' + p + ')'
+
 # 再帰を使った実装
     # def backward(self):
     #     f = self.creator
@@ -143,6 +169,17 @@ class Add(Function):
 def add(x0, x1):
     return Add()(x0, x1)
     
+class Mul(Function):
+    def forward(self, x0, x1):
+        y = x0 * x1
+        return y
+    def backward(self, gy):
+        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        return gy * x1, gy * x0 
+
+def mul(x0, x1):
+    return Mul()(x0, x1)       
+
 def numerical_deff(f, x, eps=1e-4):
     x0 = Variable(x.data - eps)
     x1 = Variable(x.data + eps)
@@ -184,6 +221,12 @@ class SquareTest(unittest.TestCase):
 
     
 
-with using_config("enable_backprop", False):
-    x = Variable(np.array(2.0))
-    y = square(x)
+a = Variable(np.array(3.0))
+b = Variable(np.array(2.0))
+c = Variable(np.array(1.0))
+
+y = add(mul(a,b),c)
+y.backward()
+print(y)
+print(a.grad)
+print(b.grad)
