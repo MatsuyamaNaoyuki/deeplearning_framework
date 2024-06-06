@@ -1,6 +1,6 @@
 import numpy as np
 import unittest
-
+import weakref
 class Variable:
     def __init__(self, data):
         if data is not None:
@@ -32,7 +32,7 @@ class Variable:
 
         while funcs:
             f = funcs.pop()
-            gys = [output.grad for output in f.outputs]
+            gys = [output().grad for output in f.outputs]
             gxs = f.backward(*gys)
 
             if not isinstance(gxs, tuple):
@@ -71,7 +71,8 @@ class Function:
         for output in outputs:
             output.set_creator(self)
         self.inputs = inputs
-        self.outputs = outputs
+        self.outputs = [weakref.ref(output) for output in outputs]
+
         return outputs if len(outputs) > 1 else outputs[0]
     def forward(self, xs):
         raise NotImplementedError()
@@ -157,12 +158,6 @@ class SquareTest(unittest.TestCase):
 
     
 
-x = Variable(np.array(3))
-y = add(x,x)
-y.backward()
-print(x.grad)
-
-x.cleargrad()
-y = add(add(x,x),x)
-y.backward()
-print(x.grad)
+for i in range(10):
+    x = Variable(np.random.randn(10000))
+    y = square(square(square(x)))
