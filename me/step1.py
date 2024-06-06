@@ -4,6 +4,7 @@ import weakref
 import contextlib
 
 class Variable:
+    __array_priority__ = 200
     def __init__(self, data, name = None):
         if data is not None:
             if not isinstance(data, np.ndarray):
@@ -81,6 +82,10 @@ class Variable:
             return 'variable(None)'
         p = str(self.data).replace('\n', '\n' + ' ' * 9)
         return 'variable(' + p + ')'
+    
+    # def __mul__(self, other):
+    #     return mul(self, other)
+
 
 # 再帰を使った実装
     # def backward(self):
@@ -90,9 +95,12 @@ class Variable:
     #         x.grad = f.backward(self.grad)
     #         x.backward()
 
+
+
 class Function:
     def __call__(self, *inputs):
         # x = input.data
+        inputs = [as_variable(x) for x in inputs]
         xs = [x.data for x in inputs]
         ys = self.forward(*xs)
         if not isinstance(ys, tuple):
@@ -131,6 +139,11 @@ def using_config(name, value):
 def no_grad():
     return using_config('enable_backprop', False)
 
+def as_variable(obj):
+    if isinstance(obj, Variable):
+        return obj
+    return Variable(obj)
+
 
 class Square(Function):
     def forward(self, x):
@@ -167,8 +180,12 @@ class Add(Function):
         return gy, gy
 
 def add(x0, x1):
+    x1 = as_array(x1)
     return Add()(x0, x1)
-    
+
+Variable.__add__ = add
+Variable.__radd__ = add
+
 class Mul(Function):
     def forward(self, x0, x1):
         y = x0 * x1
@@ -178,7 +195,78 @@ class Mul(Function):
         return gy * x1, gy * x0 
 
 def mul(x0, x1):
+    x1 = as_array(x1)
     return Mul()(x0, x1)       
+
+Variable.__mul__ = mul
+Variable.__rmul__ = mul
+
+class Neg(Function):
+    def forward(self, x):
+        return -x
+    def backward(self, gy):
+        return -gy
+    
+def neg(x):
+    return Neg()(x)
+
+Variable.__neg__ = neg
+
+class Sub(Function):
+    def forward(self, x0, x1):
+        y = x0 - x1
+        return y
+    def backward(self, gy):
+        return gy, -gy
+    
+def sub(x0, x1):
+    x1 = as_array(x1)
+    return Sub()(x0, x1)
+
+def rsub(x0, x1):
+    x1 = as_array(x1)
+    return Sub()(x1, x0)
+
+Variable.__sub__ = sub
+Variable.__rsub__ = rsub
+
+class Div(Function):
+    def forward(self, x0, x1):
+        y = x0 / x1
+        return y
+    def backward(self,gy):
+        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        gx0 = gy / x1
+        gx1 = gy * (-x0 / x1 **2)
+        return gx0, gx1
+
+def div(x0, x1):
+    x1 = as_array(x1)
+    return Div()(x0, x1)
+
+def rdiv(x0, x1):
+    x1 = as_array(x1)
+    return Div()(x1, x0)
+
+Variable.__truediv__ = div
+Variable.__rtruediv__ = rdiv
+
+class Pow(Function):
+    def __init__(self, c):
+        self.c = c
+    def forward(self,x):
+        y = x ** self.c
+        return y
+    def backward(self, gy):
+        x = self.inputs[0].data
+        c = self.c
+        gx = c * x ** (c - 1) * gy
+        return gx
+    
+def pow(x,c):
+    return Pow(c)(x)
+
+Variable.__pow__ = pow
 
 def numerical_deff(f, x, eps=1e-4):
     x0 = Variable(x.data - eps)
@@ -221,12 +309,14 @@ class SquareTest(unittest.TestCase):
 
     
 
-a = Variable(np.array(3.0))
-b = Variable(np.array(2.0))
-c = Variable(np.array(1.0))
+# a = Variable(np.array(3.0))
+# b = Variable(np.array(2.0))
+# c = Variable(np.array(1.0))
 
-y = add(mul(a,b),c)
-y.backward()
-print(y)
-print(a.grad)
-print(b.grad)
+x = Variable(np.array(2.0))
+
+y1 = x ** 3
+y2 = x - 1.0
+
+print(y1)
+print(y2)
