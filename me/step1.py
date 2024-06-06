@@ -27,7 +27,10 @@ class Variable:
                 gxs = (gxs,)
 
             for x,gx in zip(f.inputs, gxs):
-                x.grad = gx
+                if x.grad is None:
+                    x.grad = gx
+                else:
+                    x.grad = x.grad + gx
 
                 if x.creator is not None:
                     funcs.append(x.creator)
@@ -139,7 +142,8 @@ class SquareTest(unittest.TestCase):
 
 x0 = Variable(np.array(2))
 x1 = Variable(np.array(3))
-y = add(x0, x1)
-
+y = add(x0,x0)
+y.backward()
 
 print(y.data)
+print(x0.grad)
