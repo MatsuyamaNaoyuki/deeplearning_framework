@@ -34,6 +34,9 @@ class Variable:
 
                 if x.creator is not None:
                     funcs.append(x.creator)
+
+    def cleargrad(self):
+        self.grad = None
                 
 # 再帰を使った実装
     # def backward(self):
@@ -140,10 +143,12 @@ class SquareTest(unittest.TestCase):
 
     
 
-x0 = Variable(np.array(2))
-x1 = Variable(np.array(3))
-y = add(x0,x0)
+x = Variable(np.array(3))
+y = add(x,x)
 y.backward()
+print(x.grad)
 
-print(y.data)
-print(x0.grad)
+x.cleargrad()
+y = add(add(x,x),x)
+y.backward()
+print(x.grad)
