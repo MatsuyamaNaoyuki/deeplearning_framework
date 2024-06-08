@@ -46,24 +46,22 @@ def f(x):
     return y
 
 
-
 x = Variable(np.array(2.0))
-y = f(x)
-y.backward(create_graph = True)
-print(x.grad)
-gx = x.grad
-gx.backward()
-print(x.grad)
+iters = 10
 
-# for i in range(iters):
-#     print(i,x)
+for i in range(iters):
+    print(i,x)
+    y = f(x)
+    x.cleargrad()
+    y.backward(create_graph = True)
 
-#     y = f(x)
-#     print(y)
-#     x.cleargrad()
-#     y.backward()
-#     print(x.grad)
-#     x.data -= x.grad / gx2(x.data)
+    gx = x.grad
+    x.cleargrad()
+    gx.backward()
+    gx2 = x.grad
+    x.data -= gx.data / gx2.data
+
+
 
 
 
