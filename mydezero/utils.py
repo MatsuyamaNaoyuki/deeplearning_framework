@@ -2,6 +2,8 @@ import numpy as np
 import unittest
 import weakref
 import contextlib
+import os
+import subprocess
 
 def _dot_var(v, verbose=False):
     dot_var = '{} [label="{}", color = orange, style = filled]\n'
@@ -13,7 +15,7 @@ def _dot_var(v, verbose=False):
     return dot_var.format(id(v), name) #ここで名前をいれてる
 
 def _dot_func(f):
-    dot_func = '{} [label="{}", color = lightbule, style = filled, shape=box]\n'
+    dot_func = '{} [label="{}", color = lightblue, style = filled, shape=box]\n'
     txt = dot_func.format(id(f), f.__class__.__name__)
 
     dot_edge= '{} -> {}\n'
@@ -46,3 +48,18 @@ def get_dot_graph(output, varbose = True):
                 add_func(x.creator)
     
     return 'digraph g {\n' + txt + '}'
+
+def plot_dot_graph(output, verbose = True, to_file='graph.png'):
+    dot_graph = get_dot_graph(output, verbose)
+
+    tmp_dir = os.path.join(os.path.expanduser('~'), '.mydezero')
+    if not os.path.exists(tmp_dir):
+        os.mkdir(tmp_dir)
+    graph_path = os.path.join(tmp_dir, 'tmp_graph.dot')
+
+    with open(graph_path, 'w') as f:
+        f.write(dot_graph)
+    
+    extension = os.path.splitext(to_file)[1][1:]
+    cmd = 'dot {} -T {} -o {}'.format(graph_path, extension, to_file)
+    subprocess.run(cmd, shell = True)
