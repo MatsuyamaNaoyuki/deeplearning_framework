@@ -45,21 +45,25 @@ def f(x):
     y = x ** 4 - 2 * x ** 2
     return y
 
-def gx2(x):
-    return 12 * x ** 2 - 4
+
 
 x = Variable(np.array(2.0))
-iters = 10
+y = f(x)
+y.backward(create_graph = True)
+print(x.grad)
+gx = x.grad
+gx.backward()
+print(x.grad)
 
-for i in range(iters):
-    print(i,x)
+# for i in range(iters):
+#     print(i,x)
 
-    y = f(x)
-    print(y)
-    x.cleargrad()
-    y.backward()
-    print(x.grad)
-    x.data -= x.grad / gx2(x.data)
+#     y = f(x)
+#     print(y)
+#     x.cleargrad()
+#     y.backward()
+#     print(x.grad)
+#     x.data -= x.grad / gx2(x.data)
 
 
 
