@@ -176,7 +176,13 @@ class Mul(Function):
         return y
     def backward(self, gy):
         x0, x1 = self.inputs
-        return gy * x1, gy * x0 
+        gx0 = gy * x1
+        gx1 = gy * x0
+        if x0.shape != x1.shape:  # for broadcast
+            gx0 = mydezero.functions.sum_to(gx0, x0.shape)
+            gx1 = mydezero.functions.sum_to(gx1, x1.shape)
+        return gx0, gx1
+
 
 def mul(x0, x1):
     x1 = as_array(x1)
@@ -198,7 +204,13 @@ class Sub(Function):
         y = x0 - x1
         return y
     def backward(self, gy):
-        return gy, -gy
+        gx0 = gy
+        gx1 = -gy
+        if self.x0_shape != self.x1_shape:  # for broadcast
+            gx0 = mydezero.functions.sum_to(gx0, self.x0_shape)
+            gx1 = mydezero.functions.sum_to(gx1, self.x1_shape)
+        return gx0, gx1
+
     
 def sub(x0, x1):
     x1 = as_array(x1)
@@ -213,10 +225,13 @@ class Div(Function):
     def forward(self, x0, x1):
         y = x0 / x1
         return y
-    def backward(self,gy):
+    def backward(self, gy):
         x0, x1 = self.inputs
         gx0 = gy / x1
-        gx1 = gy * (-x0 / x1 **2)
+        gx1 = gy * (-x0 / x1 ** 2)
+        if x0.shape != x1.shape:  # for broadcast
+            gx0 = mydezero.functions.sum_to(gx0, x0.shape)
+            gx1 = mydezero.functions.sum_to(gx1, x1.shape)
         return gx0, gx1
 
 def div(x0, x1):
