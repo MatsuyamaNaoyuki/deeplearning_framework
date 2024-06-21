@@ -22,7 +22,7 @@ def mytans(x,y):
 
 
 x = Variable(np.array([[1,2,3],[4,5,6]])) 
-y = F.transpose(x)
+y = x.T
 y.backward(retain_grad=True)
 print(x.grad)
 
