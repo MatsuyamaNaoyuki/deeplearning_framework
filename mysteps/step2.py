@@ -21,9 +21,12 @@ def mytans(x,y):
 
 
 
-x = np.array([[1,2,3],[4,5,6]])
-y = np.reshape(x, (6,))
-print(y)
+x = Variable(np.array([[1,2,3],[4,5,6]]))
+y = x.reshape((2,3))
+y = x.reshape(2,3)
+y = F.reshape(x, (6,))
+y.backward(retain_grad=True)
+print(x.grad)
 
 # c = Variable(np.array([10,20,30],[40,50,60]))
 # t = x + c

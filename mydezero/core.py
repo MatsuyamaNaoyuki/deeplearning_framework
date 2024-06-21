@@ -2,6 +2,7 @@ import numpy as np
 import unittest
 import weakref
 import contextlib
+import mydezero
 
 class Variable:
     __array_priority__ = 200
@@ -83,6 +84,11 @@ class Variable:
             return 'variable(None)'
         p = str(self.data).replace('\n', '\n' + ' ' * 9)
         return 'variable(' + p + ')'
+    
+    def reshape(self, *shape):
+        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
+            shape = shape[0]
+        return mydezero.functions.reshape(self, shape)
     
     # def __mul__(self, other):
     #     return mul(self, other)
