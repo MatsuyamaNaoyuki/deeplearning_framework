@@ -5,6 +5,8 @@ import numpy as np
 from mydezero import Variable
 from mydezero import Function
 from mydezero.utils import plot_dot_graph
+
+from mydezero.utils import sum_to
 import mydezero.functions as F
 import math
 import matplotlib.pyplot as plt
@@ -21,10 +23,14 @@ def mytans(x,y):
 
 
 
-x = Variable(np.array([[1,2,3],[4,5,6]])) 
-y = x.T
-y.backward(retain_grad=True)
+x = Variable(np.array([[1,2,3],[4,5,6]]))
+y = F.sum(x,axis=0)
+y.backward()
+print(y)
 print(x.grad)
+# y = x.T
+# y.backward(retain_grad=True)
+# print(x.grad)
 
 # c = Variable(np.array([10,20,30],[40,50,60]))
 # t = x + c
