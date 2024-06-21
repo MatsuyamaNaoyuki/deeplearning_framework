@@ -10,23 +10,49 @@ from mydezero.utils import sum_to
 import mydezero.functions as F
 import math
 import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 
-def sphere(x,y):
-    z = x ** 2 + y ** 2
-    return z
+np.random.seed(0)
+x = np.random.rand(100,1)
+y = 5 + 2 * x + np.random.rand(100,1)
 
-def mytans(x,y):
-    z = 0.26 * (x ** 2 + y ** 2) - 0.48 * x * y
-    return z
+x_np = x
+y_np = y
+
+x, y = Variable(x), Variable(y)
+
+W = Variable(np.zeros((1,1)))
+b = Variable(np.zeros(1))
+
+def predict(x):
+    y = F.matmul(x, W) + b
+    return y
+
+def mean_squared_error(x0, x1):
+    diff = x0 - x1
+    return F.sum(diff ** 2) / len(diff)
+
+lr = 0.1
+iters = 100
+
+for i in range(iters):
+    y_pred = predict(x)
+    loss = mean_squared_error(y, y_pred)
+
+    W.cleargrad()
+    b.cleargrad()
+
+    loss.backward()
+
+    W.data -= lr * W.grad.data
+    b.data -= lr * b.grad.data
+    print(W, b, loss)
 
 
 
-
-x = Variable(np.random.randn(2,3))
-W = Variable(np.random.randn(3,4))
-y = F.matmul(x, W)
-y.backward()
-
-print(x.grad.shape)
-print(W.grad.shape)
+xnew = np.arange(0, 1, 0.01)   # xを-5から5まで0.1刻みで用意する
+ynew = b.data + W.data *xnew   
+plt.scatter(x_np, y_np)
+plt.scatter(xnew, ynew)
+plt.show()
