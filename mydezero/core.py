@@ -3,7 +3,7 @@ import unittest
 import weakref
 import contextlib
 import mydezero
-import mydezero.functions
+
 
 class Variable:
     __array_priority__ = 200
@@ -45,7 +45,7 @@ class Variable:
                 if not isinstance(gxs, tuple):
                     gxs = (gxs,)
 
-                for x,gx in zip(f.inputs, gxs):
+                for x, gx in zip(f.inputs, gxs):
                     if x.grad is None:
                         x.grad = gx
                     else:
@@ -156,7 +156,7 @@ def as_variable(obj):
 
 class Add(Function):
     def forward(self, x0, x1):
-        self.x0_shape, self.x1_shape = x0, x1.shape
+        self.x0_shape, self.x1_shape = x0.shape, x1.shape
         y = x0 + x1
         return y
     def backward(self, gy):
@@ -201,6 +201,7 @@ def neg(x):
 
 class Sub(Function):
     def forward(self, x0, x1):
+        self.x0_shape, self.x1_shape = x0.shape, x1.shape
         y = x0 - x1
         return y
     def backward(self, gy):

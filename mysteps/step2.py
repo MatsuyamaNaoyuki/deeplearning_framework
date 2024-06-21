@@ -23,16 +23,11 @@ def mytans(x,y):
 
 
 
-x = Variable(np.array([[1,2,3],[4,5,6]]))
-y = F.sum(x,axis=0)
-y.backward()
+x0 = Variable(np.array([[1,2,3]]))
+x1 = Variable(np.array([10]))
+y = x0 - x1
 print(y)
-print(x.grad)
-# y = x.T
-# y.backward(retain_grad=True)
-# print(x.grad)
 
-# c = Variable(np.array([10,20,30],[40,50,60]))
-# t = x + c
-# y = F.sum(x)
-# print(y)
+y.backward()
+print(x1.grad)
+
