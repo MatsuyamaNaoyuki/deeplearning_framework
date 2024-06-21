@@ -20,12 +20,12 @@ def mytans(x,y):
 
 
 
-x = Variable(np.array(2.0))
-y = x**2
-y.backward(create_graph=True)
-gx = x.grad
-x.cleargrad()
 
-z = gx ** 3 + y
-z.backward()
-print(x.grad)
+x = np.array([[1,2,3],[4,5,6]])
+y = np.reshape(x, (6,))
+print(y)
+
+# c = Variable(np.array([10,20,30],[40,50,60]))
+# t = x + c
+# y = F.sum(x)
+# print(y)
