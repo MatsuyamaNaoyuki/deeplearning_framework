@@ -17,40 +17,48 @@ np.random.seed(0)
 x = np.random.rand(100,1)
 y = np.sin(2 * np.pi * x) + np.random.rand(100,1)
  
-x_np = x
-y_np = y
-
-x, y = Variable(x), Variable(y)
-
-W = Variable(np.zeros((1,1)))
-b = Variable(np.zeros(1))
+I, H, O = 1, 10 ,1
+W1 = Variable(0.01 * np.random.randn(I, H))
+b1 = Variable(np.zeros(H))
+W2 = Variable(0.01 * np.random.randn(H,O))
+b2 = Variable(np.zeros(O))
 
 def predict(x):
-    y = F.matmul(x, W) + b
+    y = F.linear(x, W1, b1)
+    y = F.sigmoid(y)
+    y = F.linear(y, W2, b2)
     return y
 
-lr = 0.1
-iters = 100
+lr = 0.2
+iters = 10000
 
 for i in range(iters):
-    y_pred = F.linear(x, W, b)
+    y_pred = predict(x)
     loss = F.mean_squared_error(y, y_pred)
 
-    W.cleargrad()
-    b.cleargrad()
-
+    W1.cleargrad()
+    b1.cleargrad()
+    W2.cleargrad()
+    b2.cleargrad()
     loss.backward()
 
-    W.data -= lr * W.grad.data
-    b.data -= lr * b.grad.data
-    print(W, b, loss)
+    W1.data -= lr * W1.grad.data
+    b1.data -= lr * b1.grad.data
+    W2.data -= lr * W2.grad.data
+    b2.data -= lr * b2.grad.data
+    if i % 1000 == 0:
+        print(loss)
 
 
 
-xnew = np.arange(-5, 5, 0.1)   # xを-5から5まで0.1刻みで用意する
-ynew = F.sigmoid(xnew)  
+print(x.size)
 
+print(y.size)
+newy = predict(x)
+ 
 
-plt.scatter(x_np, y_np)
-plt.scatter(xnew, ynew.data)
+print(newy.data.size)
+plt.scatter(x, y)
+plt.scatter(x, newy.data)
+
 plt.show()

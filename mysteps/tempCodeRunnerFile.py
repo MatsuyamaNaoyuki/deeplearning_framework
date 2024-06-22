@@ -1,1 +1,1 @@
-data
+plt.scatter(x, y_pred)
