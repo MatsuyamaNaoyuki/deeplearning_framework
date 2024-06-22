@@ -280,4 +280,7 @@ def setup_variable():
     Variable.__pow__ = pow
 
 
+class Parameter(Variable):
+    pass
+
 
