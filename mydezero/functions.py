@@ -1,5 +1,5 @@
 import dezero
-from mydezero import utils
+from mydezero import cuda, utils
 from mydezero.core import Function, Variable, as_variable, as_array
 import numpy as np
 
@@ -39,6 +39,20 @@ class Tanh(Function):
 
 def tanh(x):
     return Tanh()(x)
+
+class Exp(Function):
+    def forward(self, x):
+        xp = cuda.get_array_module(x)
+        y = xp.exp(x)
+        return y
+    
+    def backward(self, gy):
+        y = self.outputs[0]()
+        gx = gy * y
+        return gx
+    
+def exp(x):
+    return Exp()(x)
 
 
 class Reshape(Function):
@@ -184,3 +198,23 @@ class Linear(Function):
 
 def linear(x, W, b=None):
     return Linear()(x, W, b)
+
+def sigmoid_simple(x):
+    x = as_variable(x)
+    y = 1 / (1 + exp(-x))
+    return y
+
+class Sigmoid(Function):
+    def forward(self, x):
+        xp = cuda.get_array_module(x)
+        y = xp.tanh(x * 0.5) * 0.5 + 0.5
+        return y
+    
+    def backward(self, gy):
+        y = self.outputs[0]()
+        gx = gy * y * (1-y)
+        return gx
+    
+def sigmoid(x):
+    return Sigmoid()(x)
+    

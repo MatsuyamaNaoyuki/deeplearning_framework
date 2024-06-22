@@ -15,8 +15,8 @@ import matplotlib.pyplot as plt
 
 np.random.seed(0)
 x = np.random.rand(100,1)
-y = 5 + 2 * x + np.random.rand(100,1)
-
+y = np.sin(2 * np.pi * x) + np.random.rand(100,1)
+ 
 x_np = x
 y_np = y
 
@@ -33,7 +33,7 @@ lr = 0.1
 iters = 100
 
 for i in range(iters):
-    y_pred = predict(x)
+    y_pred = F.linear(x, W, b)
     loss = F.mean_squared_error(y, y_pred)
 
     W.cleargrad()
@@ -47,8 +47,10 @@ for i in range(iters):
 
 
 
-xnew = np.arange(0, 1, 0.01)   # xを-5から5まで0.1刻みで用意する
-ynew = b.data + W.data *xnew   
+xnew = np.arange(-5, 5, 0.1)   # xを-5から5まで0.1刻みで用意する
+ynew = F.sigmoid(xnew)  
+
+
 plt.scatter(x_np, y_np)
-plt.scatter(xnew, ynew)
+plt.scatter(xnew, ynew.data)
 plt.show()
