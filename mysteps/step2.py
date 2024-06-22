@@ -13,49 +13,17 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 
+model = L.Layer()
+model.l1 = L.Linear(5)
+model.l2 = L.Linear(3)
 
-
-
-
-np.random.seed(0)
-x = np.random.rand(100,1)
-y = np.sin(2 * np.pi * x) + np.random.rand(100,1)
- 
-l1 = L.Linear(10)
-l2 = L.Linear(1)
-
-def predict(x):
-    y = l1(x)
+def predict(model, x):
+    y = model.l1(x)
     y = F.sigmoid(y)
-    y = l2(y)
+    y = model.l2(y)
     return y
 
-lr = 0.2
-iters = 10000
-for i in range(iters):
-    y_pred = predict(x)
-    loss = F.mean_squared_error(y, y_pred)
+for p in model.params():
+    print(p)
 
-    l1.cleargrads()
-    l2.cleargrads()
-    loss.backward()
-
-    for l in [l1, l2]:
-        for p in l.params():
-            p.data -= lr * p.grad.data
-    if i % 1000 == 0:
-        print(loss)
-
-
-
-print(x.size)
-
-print(y.size)
-newy = predict(x)
- 
-
-print(newy.data.size)
-plt.scatter(x, y)
-plt.scatter(x, newy.data)
-
-plt.show()
+model.cleargrads()
