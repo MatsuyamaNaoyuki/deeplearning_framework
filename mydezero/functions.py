@@ -1,4 +1,4 @@
-import dezero
+import mydezero
 from mydezero import cuda, utils
 from mydezero.core import Function, Variable, as_variable, as_array
 import numpy as np
