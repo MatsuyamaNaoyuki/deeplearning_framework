@@ -65,3 +65,9 @@ class Linear(Layer):
 
         y = F.linear(x, self.W, self.b)
         return y
+    
+
+class TwoLayerNet(Layer):
+    def __init__(self, hidden_size, out_size):
+        super().__init__()
+        self.l1 = Linear(hidden_size)

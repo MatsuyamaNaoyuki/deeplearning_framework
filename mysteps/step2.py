@@ -2,7 +2,7 @@ if '__file__' in globals():
     import os, sys
     sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import numpy as np
-from mydezero import Variable
+from mydezero import Variable, Model
 from mydezero import Parameter
 from mydezero import Function
 from mydezero.utils import plot_dot_graph
@@ -13,17 +13,17 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 
-model = L.Layer()
-model.l1 = L.Linear(5)
-model.l2 = L.Linear(3)
+class TwoLayerNet(Model):
+    def __init__(self, hidden_size, out_size):
+        super().__init__()
+        self.l1 = L.Linear(hidden_size)
+        self.l2 = L.Linear(out_size)
 
-def predict(model, x):
-    y = model.l1(x)
-    y = F.sigmoid(y)
-    y = model.l2(y)
-    return y
-
-for p in model.params():
-    print(p)
-
-model.cleargrads()
+    def forward(self, x):
+        y = F.sigmoid(self.l1(x))
+        y = self.l2(y)
+        return y
+    
+x = Variable(np.random.randn(5,10), name='x')
+model = TwoLayerNet(100, 10)
+model.plot(x)
