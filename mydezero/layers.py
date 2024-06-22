@@ -25,6 +25,7 @@ class Layer:
         raise NotImplementedError()
     
     def params(self):
+        print("A")
         for name in self._params:
             obj = self.__dict__[name]
 
@@ -67,7 +68,3 @@ class Linear(Layer):
         return y
     
 
-class TwoLayerNet(Layer):
-    def __init__(self, hidden_size, out_size):
-        super().__init__()
-        self.l1 = Linear(hidden_size)
